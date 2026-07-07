@@ -7,51 +7,34 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-</head>
 <body>
     <div class="container">
         <div class="progress-bar">
             <div class="step-indicator">
                 <div class="step-circle active" id="stepCircle0" onclick="goToStep(0)">1</div>
-                <span class="step-label active" id="stepLabel0">Объект</span>
+                <span class="step-label active" id="stepLabel0">Инфо</span>
             </div>
             <div class="step-indicator">
                 <div class="step-circle" id="stepCircle1" onclick="goToStep(1)">2</div>
-                <span class="step-label" id="stepLabel1">Работы</span>
-            </div>
-            <div class="step-indicator">
-                <div class="step-circle" id="stepCircle2" onclick="goToStep(2)">3</div>
-                <span class="step-label" id="stepLabel2">Транспорт</span>
-            </div>
-            <div class="step-indicator">
-                <div class="step-circle" id="stepCircle3" onclick="goToStep(3)">4</div>
-                <span class="step-label" id="stepLabel3">Персонал</span>
+                <span class="step-label" id="stepLabel1">Объекты и работы</span>
             </div>
         </div>
 
         <!-- STEP 1 -->
         <div class="step active" id="step0">
-            <h2 class="step-title">👤 Личные данные</h2>
-            <p class="step-subtitle">Введите ваше ФИО и выберите объект</p>
+            <h2 class="step-title">👤 Общие данные</h2>
+            <p class="step-subtitle">Введите ваше ФИО и дату отчёта</p>
 
             <div class="form-group">
                 <label>Ваше ФИО <span class="required">*</span></label>
                 <input type="text" id="fio" placeholder="Иванов Иван Иванович" autocomplete="name">
                 <div class="error-message" id="fioError">❌ Введите ФИО полностью (Фамилия Имя Отчество)</div>
-                <div style="font-size:12px; color:#888; margin-top:4px;">Пример: Иванов Иван Иванович</div>
             </div>
 
             <div class="form-group">
-                <label>Выберите объект <span class="required">*</span></label>
-                <select id="objectSelect">
-                    <option value="">-- Выберите объект --</option>
-                    <option value="СМУ-2">СМУ-2</option>
-                    <option value="СМУ-3">СМУ-3</option>
-                    <option value="СМУ-5">СМУ-5</option>
-                    <option value="ДРСУ-1">ДРСУ-1</option>
-                    <option value="УМ-1">УМ-1</option>
-                </select>
-                <div class="error-message" id="objectError">❌ Выберите объект</div>
+                <label>Дата отчёта <span class="required">*</span></label>
+                <input type="date" id="reportDate">
+                <div class="error-message" id="dateError">❌ Укажите дату отчёта</div>
             </div>
 
             <div class="btn-group">
@@ -61,89 +44,16 @@
 
         <!-- STEP 2 -->
         <div class="step" id="step1">
-            <h2 class="step-title">🔧 Вид работ</h2>
-            <p class="step-subtitle">Выберите тип выполняемых работ</p>
+            <h2 class="step-title">🏗 Объекты и виды работ</h2>
+            <p class="step-subtitle">Добавьте один или несколько объектов. По каждому — виды работ, технику и персонал. Если нужного объекта или вида работ нет в списке — просто впишите свой.</p>
 
-            <div class="form-group">
-                <label>Вид работ <span class="required">*</span></label>
-                <select id="workType">
-                    <option value="">-- Выберите вид работ --</option>
-                    <option value="Монтаж заварки">Монтаж заварки</option>
-                    <option value="Устранение замечаний">Устранение замечаний</option>
-                    <option value="Плановый ремонт">Плановый ремонт</option>
-                    <option value="Аварийный ремонт">Аварийный ремонт</option>
-                    <option value="Техническое обслуживание">Техническое обслуживание</option>
-                    <option value="Диагностика">Диагностика</option>
-                </select>
-                <div class="error-message" id="workError">❌ Выберите вид работ</div>
-            </div>
+            <div id="objectsContainer"></div>
+
+            <button class="btn-add" id="addObjectBtn" type="button">➕ Добавить объект</button>
+            <div class="error-message" id="objectsError" style="text-align:center; margin-top:10px;">❌ Добавьте хотя бы один объект с названием</div>
 
             <div class="btn-group">
-                <button class="btn btn-secondary" onclick="prevStep(1)">← Назад</button>
-                <button class="btn btn-primary" onclick="nextStep(2)">Далее →</button>
-            </div>
-        </div>
-
-        <!-- STEP 3 -->
-        <div class="step" id="step2">
-            <h2 class="step-title">🚗 Транспорт</h2>
-            <p class="step-subtitle">Добавьте транспортные средства, используемые на объекте</p>
-
-            <div id="transportsContainer"></div>
-
-            <button class="btn-add" id="addTransportBtn">➕ Добавить транспорт</button>
-            <div class="error-message" id="transportsError" style="text-align:center; margin-top:10px;">❌ Добавьте хотя бы один транспорт</div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="prevStep(2)">← Назад</button>
-                <button class="btn btn-primary" onclick="nextStep(3)">Далее →</button>
-            </div>
-        </div>
-
-        <!-- STEP 4 -->
-        <div class="step" id="step3">
-            <h2 class="step-title">👷 Персонал</h2>
-            <p class="step-subtitle">Укажите количество и время работы персонала</p>
-
-            <div class="worker-section" id="mountersSection">
-                <div class="worker-section-title">🔧 Монтажники</div>
-                <div class="worker-row">
-                    <div>
-                        <label>Количество <span class="required">*</span></label>
-                        <input type="number" id="mountersCount" placeholder="0" min="0" step="1">
-                    </div>
-                    <div>
-                        <label>Часы работы (общие) <span class="required">*</span></label>
-                        <input type="number" id="mountersHours" placeholder="Например: 8" min="0" step="0.5">
-                    </div>
-                </div>
-                <div class="error-message" id="mountersError">❌ Укажите количество и часы работы монтажников</div>
-            </div>
-
-            <div class="worker-section" id="weldersSection">
-                <div class="worker-section-title">🔥 Сварщики</div>
-                <div class="worker-row">
-                    <div>
-                        <label>Количество <span class="required">*</span></label>
-                        <input type="number" id="weldersCount" placeholder="0" min="0" step="1">
-                    </div>
-                    <div>
-                        <label>Часы работы (общие) <span class="required">*</span></label>
-                        <input type="number" id="weldersHours" placeholder="Например: 8" min="0" step="0.5">
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top:12px;">
-                    <label>Фамилии сварщиков <span class="required">*</span></label>
-                    <input type="text" class="worker-surnames-input" id="weldersSurnames" placeholder="Иванов, Петров, Сидоров или Иванов Петров Сидоров">
-                    <div class="hint-text" id="surnamesHint">Вводите фамилии любым способом (через запятую, пробел, слэш и т.д.)</div>
-                </div>
-                <div class="error-message" id="weldersError">❌ Укажите количество, часы работы и фамилии сварщиков</div>
-            </div>
-
-            <div class="error-message" id="workersError" style="text-align:center; margin-top:10px;">❌ Добавьте хотя бы одного монтажника или сварщика</div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="prevStep(3)">← Назад</button>
+                <button class="btn btn-secondary" onclick="prevStep(0)">← Назад</button>
                 <button class="btn btn-warning" id="reviewBtn">📋 Проверить отчет</button>
                 <button class="btn btn-success" id="submitBtn">📤 Отправить</button>
             </div>
@@ -170,6 +80,62 @@
             </div>
         </div>
     </div>
+
+    <!-- Подсказки для автодополнения (можно вводить и своё значение) -->
+    <datalist id="objectsList">
+        <option value="ГЗУ-11Д - ГЗУ-44 НБГ">
+        <option value="ГЗУ-8-ГЗУ-9 ГЗУ-9-ГЗУ-20А">
+        <option value="ДНС-Девон - ДНС-3">
+        <option value="КНС-12">
+        <option value="КНС 17П">
+        <option value="ЛДНС с УПС">
+        <option value="ОПР">
+        <option value="Скв 26567">
+        <option value="Скв 9218">
+        <option value="Кнс 171">
+    </datalist>
+
+    <datalist id="workTypesList">
+        <option value="Разбивка трассы">
+        <option value="Шурфовка пересечений">
+        <option value="Клыкование">
+        <option value="Срезка плодородного слоя">
+        <option value="Копка траншеи">
+        <option value="Сварка футляров">
+        <option value="Протаскивание через футляр">
+        <option value="Доставка ТМЦ">
+        <option value="Монтаж линейки">
+        <option value="Обвязка">
+        <option value="Просветка стыков РГК">
+        <option value="Проведение ККНИ">
+        <option value="Сварка узлов">
+        <option value="Монтаж ЭХЗ и КИК">
+        <option value="Испытания трубопровода">
+        <option value="Засыпка траншеи">
+        <option value="Рекультивация">
+    </datalist>
+
+    <datalist id="transportList">
+        <option value="Бульдозер">
+        <option value="Экскаватор">
+        <option value="Трубоукладчик">
+        <option value="УАЗ">
+        <option value="Соболь">
+        <option value="Арок">
+        <option value="Камаз">
+        <option value="КМУ">
+        <option value="Фискар">
+        <option value="АРПТ">
+        <option value="Длинномер">
+        <option value="АПШ">
+        <option value="Погрузчик">
+        <option value="Кран">
+        <option value="ЦА">
+        <option value="АЦ">
+        <option value="Трал">
+        <option value="СИН">
+        <option value="Нива">
+    </datalist>
 
     <script src="script.js"></script>
 </body>

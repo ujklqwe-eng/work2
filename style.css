@@ -672,6 +672,127 @@ select {
     }
 }
 
+/* ===== Объекты и динамические строки работ/техники ===== */
+.object-card {
+    border: 2px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 20px;
+    background: #fbfbfd;
+}
+
+.object-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.object-card-header h3 {
+    font-size: 16px;
+    color: #1a1a2e;
+}
+
+.remove-object-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 0 6px;
+    transition: transform 0.2s;
+}
+
+.remove-object-btn:hover {
+    transform: scale(1.2);
+}
+
+.sub-section-title {
+    font-weight: 700;
+    color: #555;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 18px 0 10px;
+}
+
+.work-row {
+    display: grid;
+    grid-template-columns: 2fr 70px 90px auto;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.transport-row-dyn {
+    display: grid;
+    grid-template-columns: 2fr 90px auto;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.work-row input,
+.transport-row-dyn input {
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafafa;
+}
+
+.work-row input:focus,
+.transport-row-dyn input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+    background: white;
+}
+
+.remove-row-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 0 4px;
+}
+
+.remove-row-btn:hover {
+    transform: scale(1.2);
+}
+
+textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fafafa;
+    min-height: 60px;
+    resize: vertical;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+    background: white;
+}
+
+@media (max-width: 600px) {
+    .work-row {
+        grid-template-columns: 1fr;
+    }
+    .transport-row-dyn {
+        grid-template-columns: 1fr;
+    }
+}
+
 .modal-content::-webkit-scrollbar {
     width: 6px;
 }
