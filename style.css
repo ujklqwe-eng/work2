@@ -727,7 +727,7 @@ select {
 
 .transport-row-dyn {
     display: grid;
-    grid-template-columns: 2fr 90px auto;
+    grid-template-columns: 1.6fr 1fr 80px auto;
     gap: 8px;
     margin-bottom: 8px;
     align-items: center;

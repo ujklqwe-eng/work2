@@ -1,4 +1,32 @@
 // ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+// Приводит каждое слово к заглавной букве (Иванов иван иванович -> Иванов Иван Иванович)
+function capitalizeWords(str) {
+    return str
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(word => {
+            // Работает и с двойными фамилиями через дефис: иванов-петров -> Иванов-Петров
+            return word
+                .split('-')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join('-');
+        })
+        .join(' ');
+}
+
+function attachAutoCapitalize(input) {
+    input.addEventListener('blur', () => {
+        if (input.value.trim()) {
+            input.value = capitalizeWords(input.value.trim());
+        }
+    });
+}
+
+// ============================================
 // STATE
 // ============================================
 let currentStep = 0;
@@ -68,21 +96,88 @@ function validateStep(step) {
 
     if (step === 1) {
         const cards = document.querySelectorAll('.object-card');
-        let hasValidObject = false;
+        let allValid = cards.length > 0;
+
         cards.forEach(card => {
-            const name = card.querySelector('.object-name-input').value.trim();
-            if (name) hasValidObject = true;
+            if (!validateObjectCard(card)) allValid = false;
         });
 
-        if (!hasValidObject) {
-            document.getElementById('objectsError').classList.add('show');
-            return false;
-        }
-        document.getElementById('objectsError').classList.remove('show');
-        return true;
+        document.getElementById('objectsError').classList.toggle('show', !allValid);
+        return allValid;
     }
 
     return true;
+}
+
+// Проверяет одну карточку объекта: название обязательно, все начатые строки
+// работ/техники должны быть заполнены полностью, персонал — согласован (если
+// указано количество, обязательны и часы; для сварщиков — ещё и фамилии).
+function validateObjectCard(card) {
+    let valid = true;
+
+    // Название объекта
+    const nameInput = card.querySelector('.object-name-input');
+    if (!nameInput.value.trim()) {
+        nameInput.classList.add('error');
+        valid = false;
+    } else {
+        nameInput.classList.remove('error');
+    }
+
+    // Строки видов работ: если заполнено хоть одно поле в строке — обязательны все
+    card.querySelectorAll('.work-row').forEach(row => {
+        const nameEl = row.querySelector('.work-name-input');
+        const unitEl = row.querySelector('.work-unit-input');
+        const qtyEl = row.querySelector('.work-qty-input');
+        const anyFilled = nameEl.value.trim() || unitEl.value.trim() || qtyEl.value.trim();
+
+        [nameEl, unitEl, qtyEl].forEach(el => el.classList.remove('error'));
+
+        if (anyFilled) {
+            if (!nameEl.value.trim()) { nameEl.classList.add('error'); valid = false; }
+            if (!qtyEl.value.trim() || Number(qtyEl.value) <= 0) { qtyEl.classList.add('error'); valid = false; }
+        }
+    });
+
+    // Строки техники: аналогично, плюс госномер необязателен
+    card.querySelectorAll('.transport-row-dyn').forEach(row => {
+        const nameEl = row.querySelector('.transport-name-input');
+        const hoursEl = row.querySelector('.transport-hours-input');
+        const anyFilled = nameEl.value.trim() || hoursEl.value.trim();
+
+        [nameEl, hoursEl].forEach(el => el.classList.remove('error'));
+
+        if (anyFilled) {
+            if (!nameEl.value.trim()) { nameEl.classList.add('error'); valid = false; }
+            if (!hoursEl.value.trim() || Number(hoursEl.value) <= 0) { hoursEl.classList.add('error'); valid = false; }
+        }
+    });
+
+    // Монтажники: количество и часы — только вместе
+    const mCount = card.querySelector('.mounters-count');
+    const mHours = card.querySelector('.mounters-hours');
+    mCount.classList.remove('error');
+    mHours.classList.remove('error');
+    if (mCount.value.trim() || mHours.value.trim()) {
+        if (!mCount.value.trim() || Number(mCount.value) <= 0) { mCount.classList.add('error'); valid = false; }
+        if (!mHours.value.trim() || Number(mHours.value) <= 0) { mHours.classList.add('error'); valid = false; }
+    }
+
+    // Сварщики: количество, часы и фамилии — только вместе
+    const wCount = card.querySelector('.welders-count');
+    const wHours = card.querySelector('.welders-hours');
+    const wSurnames = card.querySelector('.welders-surnames');
+    wCount.classList.remove('error');
+    wHours.classList.remove('error');
+    wSurnames.classList.remove('error');
+    if (wCount.value.trim() || wHours.value.trim() || wSurnames.value.trim()) {
+        if (!wCount.value.trim() || Number(wCount.value) <= 0) { wCount.classList.add('error'); valid = false; }
+        if (!wHours.value.trim() || Number(wHours.value) <= 0) { wHours.classList.add('error'); valid = false; }
+        if (!wSurnames.value.trim()) { wSurnames.classList.add('error'); valid = false; }
+    }
+
+    card.querySelector('.object-card-error').classList.toggle('show', !valid);
+    return valid;
 }
 
 // ============================================
@@ -154,11 +249,14 @@ function addObject() {
             <label>Свободный комментарий</label>
             <textarea class="comment-input" placeholder="Любые дополнительные детали"></textarea>
         </div>
+
+        <div class="error-message object-card-error">❌ Проверьте отмеченные поля в этом объекте</div>
     `;
 
     document.getElementById('objectsContainer').appendChild(card);
     addWorkRow(objId);
     addTransportRowDyn(objId);
+    attachAutoCapitalize(card.querySelector('.welders-surnames'));
     updateObjectTitles();
 }
 
@@ -206,6 +304,7 @@ function addTransportRowDyn(objId) {
     row.dataset.rowId = rowId;
     row.innerHTML = `
         <input type="text" class="transport-name-input" list="transportList" placeholder="Транспорт / техника">
+        <input type="text" class="transport-gosnumber-input" placeholder="Госномер">
         <input type="number" class="transport-hours-input" placeholder="Часы" min="0" step="0.5">
         <button type="button" class="remove-row-btn" onclick="removeRow(this)" title="Удалить">×</button>
     `;
@@ -220,7 +319,7 @@ function removeRow(btn) {
 // DATA COLLECTION
 // ============================================
 function collectData() {
-    const fio = document.getElementById('fio').value.trim();
+    const fio = capitalizeWords(document.getElementById('fio').value.trim());
     const date = document.getElementById('reportDate').value;
 
     const objects = [];
@@ -239,15 +338,16 @@ function collectData() {
         const transport = [];
         card.querySelectorAll('.transport-row-dyn').forEach(row => {
             const name = row.querySelector('.transport-name-input').value.trim();
+            const gosNumber = row.querySelector('.transport-gosnumber-input').value.trim();
             const hours = row.querySelector('.transport-hours-input').value.trim();
-            if (name && hours) transport.push({ name, hours });
+            if (name && hours) transport.push({ name, gosNumber, hours });
         });
 
         const mountersCount = card.querySelector('.mounters-count').value.trim();
         const mountersHours = card.querySelector('.mounters-hours').value.trim();
         const weldersCount = card.querySelector('.welders-count').value.trim();
         const weldersHours = card.querySelector('.welders-hours').value.trim();
-        const weldersSurnames = card.querySelector('.welders-surnames').value.trim();
+        const weldersSurnames = capitalizeWords(card.querySelector('.welders-surnames').value.trim());
 
         const problems = card.querySelector('.problems-input').value.trim();
         const comment = card.querySelector('.comment-input').value.trim();
@@ -296,7 +396,8 @@ function openReview() {
         if (obj.transport.length) {
             html += `<div class="review-sub">`;
             obj.transport.forEach(t => {
-                html += `<div class="review-sub-item">🚗 ${escapeHtml(t.name)}: ${escapeHtml(t.hours)} ч.</div>`;
+                const gos = t.gosNumber ? ` (${escapeHtml(t.gosNumber)})` : '';
+                html += `<div class="review-sub-item">🚗 ${escapeHtml(t.name)}${gos}: ${escapeHtml(t.hours)} ч.</div>`;
             });
             html += `</div>`;
         }
@@ -385,6 +486,8 @@ document.getElementById('addObjectBtn').addEventListener('click', addObject);
 document.getElementById('reviewBtn').addEventListener('click', openReview);
 document.getElementById('submitBtn').addEventListener('click', submitReport);
 document.getElementById('confirmSubmitBtn').addEventListener('click', submitReport);
+
+attachAutoCapitalize(document.getElementById('fio'));
 
 // Дата по умолчанию — сегодня
 document.getElementById('reportDate').valueAsDate = new Date();
