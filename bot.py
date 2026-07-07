@@ -21,12 +21,12 @@ from openpyxl.utils import get_column_letter
 
 logging.basicConfig(level=logging.INFO)
 
-BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"          # токен от @BotFather
+BOT_TOKEN = "8978261801:AAFwGlkv9YndsdFtPCV-tSRrY8l3E1o-Xpw"          # токен от @BotFather
 WEBAPP_URL = "https://ujklqwe-eng.github.io/work2/"  # ссылка на захостенный HTML
 
 # ID администраторов — те, кто сможет скачивать сводную таблицу Excel.
 # Узнать свой Telegram ID можно у бота @userinfobot (просто напишите ему /start)
-ADMIN_IDS = [123456789]  # <-- замените на реальный(е) ID через запятую
+ADMIN_IDS = [806948799]  # <-- замените на реальный(е) ID через запятую
 
 EXCEL_FILE = "reports.xlsx"
 
@@ -81,7 +81,7 @@ def format_transport(transport: list) -> str:
     if not transport:
         return "—"
     return "; ".join(
-        f"{t.get('name')} — {t.get('hours')}ч"
+        f"{t.get('name')}" + (f" ({t.get('gosNumber')})" if t.get('gosNumber') else "") + f" — {t.get('hours')}ч"
         for t in transport
     )
 
@@ -142,7 +142,8 @@ def format_report_text(fio: str, report_date: str, objects: list) -> str:
         if transport:
             lines.append("🚗 Техника:")
             for t in transport:
-                lines.append(f"  • {t.get('name')} — {t.get('hours')} ч.")
+                gos = f" ({t.get('gosNumber')})" if t.get("gosNumber") else ""
+                lines.append(f"  • {t.get('name')}{gos} — {t.get('hours')} ч.")
 
         mounters = obj.get("mounters", {})
         welders = obj.get("welders", {})
