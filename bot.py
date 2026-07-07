@@ -21,7 +21,7 @@ from openpyxl.utils import get_column_letter
 
 logging.basicConfig(level=logging.INFO)
 
-BOT_TOKEN = "8978261801:AAFwGlkv9YndsdFtPCV-tSRrY8l3E1o-Xpw"          # токен от @BotFather
+BOT_TOKEN = ""          # токен от @BotFather
 WEBAPP_URL = "https://ujklqwe-eng.github.io/work2/"  # ссылка на захостенный HTML
 
 # ID администраторов — те, кто сможет скачивать сводную таблицу Excel.
